@@ -112,6 +112,7 @@
             localStorage.setItem("assigned", JSON.stringify(assigned));
             localStorage.setItem("recipients", JSON.stringify(recipients));
 
+            // Display the assigned recipient to the participant
             document.getElementById("result").textContent = `Hi ${participant.name}, your secret gift recipient is: ${recipient}.`;
         });
     </script>
