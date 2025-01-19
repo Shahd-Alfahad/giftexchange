@@ -36,23 +36,10 @@
         button:hover {
             background-color: #45a049;
         }
-        .result, .data-display {
+        .result {
             margin-top: 20px;
             font-size: 18px;
             color: #333;
-        }
-        .data-display {
-            text-align: left;
-            margin: 0 auto;
-            width: 50%;
-            background-color: #eaf7ea;
-            padding: 10px;
-            border: 1px solid #4CAF50;
-            border-radius: 5px;
-        }
-        .data-display h2 {
-            color: #4CAF50;
-            font-size: 20px;
         }
     </style>
 </head>
@@ -65,14 +52,6 @@
     </form>
 
     <div class="result" id="result"></div>
-
-    <div class="data-display" id="dataDisplay">
-        <h2>Assigned Recipients</h2>
-        <ul id="assignedList"></ul>
-        <h2>Remaining Recipients</h2>
-        <ul id="remainingList"></ul>
-    </div>
-
     <h1>ادعوا لشيخه شوشو</h1>
     <script>
         // List of participants and their secret codes
@@ -92,30 +71,6 @@
         const recipients = JSON.parse(localStorage.getItem("recipients")) || participants.map(p => p.name);
         const assigned = JSON.parse(localStorage.getItem("assigned")) || {};
 
-        // Update the data display on the page
-        function updateDataDisplay() {
-            const assignedList = document.getElementById("assignedList");
-            const remainingList = document.getElementById("remainingList");
-
-            // Clear existing lists
-            assignedList.innerHTML = "";
-            remainingList.innerHTML = "";
-
-            // Display assigned data
-            for (const [giver, recipient] of Object.entries(assigned)) {
-                const li = document.createElement("li");
-                li.textContent = `${giver} ➡️ ${recipient}`;
-                assignedList.appendChild(li);
-            }
-
-            // Display remaining recipients
-            recipients.forEach(name => {
-                const li = document.createElement("li");
-                li.textContent = name;
-                remainingList.appendChild(li);
-            });
-        }
-
         document.getElementById("giftForm").addEventListener("submit", function(event) {
             event.preventDefault(); // Prevent page reload
 
@@ -132,7 +87,6 @@
             // Check if the participant already has an assigned recipient
             if (assigned[participant.name]) {
                 document.getElementById("result").textContent = `Hi ${participant.name}, your secret gift recipient is: ${assigned[participant.name]}.`;
-                updateDataDisplay();
                 return;
             }
 
@@ -159,13 +113,7 @@
             localStorage.setItem("recipients", JSON.stringify(recipients));
 
             document.getElementById("result").textContent = `Hi ${participant.name}, your secret gift recipient is: ${recipient}.`;
-
-            // Update the displayed data
-            updateDataDisplay();
         });
-
-        // Initial update of the data display
-        updateDataDisplay();
     </script>
 </body>
 </html>
