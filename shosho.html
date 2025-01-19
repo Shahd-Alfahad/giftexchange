@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Gift Exchange</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        form {
+            margin: 20px auto;
+            display: inline-block;
+        }
+        input[type="text"], input[type="password"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 300px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>تبادل هدايا </h1>
+    <form id="giftForm">
+        <input type="text" id="nameInput" placeholder="Enter your name الي عطتك اياه المديره شوشو" required>
+        <input type="password" id="secretCodeInput" placeholder="Enter your secret code الي بعد عطتك اياه الشيخه شوشو " required>
+        <button type="submit">يلا شوفي مين المحظوظ الي طلع لك </button>
+    </form>
+ 
+    <div class="result" id="result"></div>
+    <h1>ادعوا لشيخه شوشو </h1>
+    <script>
+        // List of participants and their secret codes
+        const participants = [
+            { name: "Shosho", code: "8998" },
+            { name: "Njoud", code: "5678" },
+            { name: "Lolo", code: "9101" },
+            { name: "Deema", code: "1122" },
+            { name: "Alhanouf", code: "3344" },
+            { name: "Nouf", code: "5566" },
+            { name: "Majedh", code: "7788" },
+            { name: "Nourah B", code: "9900" },
+            { name: "Nourah S", code: "4455" }
+        ];
+
+        // Keep track of assigned names
+        const assigned = new Map();
+
+        document.getElementById("giftForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent page reload
+
+            const inputName = document.getElementById("nameInput").value.trim();
+            const inputCode = document.getElementById("secretCodeInput").value.trim();
+
+            // Validate name and code
+            const participant = participants.find(p => p.name === inputName && p.code === inputCode);
+            if (!participant) {
+                document.getElementById("result").textContent = "Error: Invalid name or secret code.";
+                return;
+            }
+
+            // Check if the participant already has an assigned recipient
+            if (assigned.has(participant.name)) {
+                document.getElementById("result").textContent = `Hi ${participant.name}, your secret gift recipient is: ${assigned.get(participant.name)}.`;
+                return;
+            }
+
+            // Filter available recipients
+            const available = participants
+                .map(p => p.name)
+                .filter(name => name !== participant.name && !Array.from(assigned.values()).includes(name));
+
+            if (available.length === 0) {
+                document.getElementById("result").textContent = "Error: No more recipients available.";
+                return;
+            }
+
+            // Randomly assign a recipient
+            const recipient = available[Math.floor(Math.random() * available.length)];
+            assigned.set(participant.name, recipient);
+
+            document.getElementById("result").textContent = `Hi ${participant.name}, your secret gift recipient is: ${recipient}.`;
+        });
+    </script>
+</body>
+</html>
