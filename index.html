@@ -44,15 +44,15 @@
     </style>
 </head>
 <body>
-    <h1>تبادل هدايا </h1>
+    <h1>تبادل هدايا</h1>
     <form id="giftForm">
         <input type="text" id="nameInput" placeholder="Enter your name الي عطتك اياه المديره شوشو" required>
-        <input type="password" id="secretCodeInput" placeholder="Enter your secret code الي بعد عطتك اياه الشيخه شوشو " required>
-        <button type="submit">يلا شوفي مين المحظوظ الي طلع لك </button>
+        <input type="password" id="secretCodeInput" placeholder="Enter your secret code الي بعد عطتك اياه الشيخه شوشو" required>
+        <button type="submit">يلا شوفي مين المحظوظ الي طلع لك</button>
     </form>
- 
+
     <div class="result" id="result"></div>
-    <h1>ادعوا لشيخه شوشو </h1>
+    <h1>ادعوا لشيخه شوشو</h1>
     <script>
         // List of participants and their secret codes
         const participants = [
@@ -67,8 +67,9 @@
             { name: "Nourah S", code: "4455" }
         ];
 
-        // Keep track of assigned names
-        const assigned = new Map();
+        // Retrieve or initialize storage for assigned givers and recipients
+        const assigned = JSON.parse(localStorage.getItem("assigned")) || {};
+        const recipientsUsed = JSON.parse(localStorage.getItem("recipientsUsed")) || [];
 
         document.getElementById("giftForm").addEventListener("submit", function(event) {
             event.preventDefault(); // Prevent page reload
@@ -84,15 +85,15 @@
             }
 
             // Check if the participant already has an assigned recipient
-            if (assigned.has(participant.name)) {
-                document.getElementById("result").textContent = `Hi ${participant.name}, your secret gift recipient is: ${assigned.get(participant.name)}.`;
+            if (assigned[participant.name]) {
+                document.getElementById("result").textContent = `Hi ${participant.name}, your secret gift recipient is assigned.`;
                 return;
             }
 
-            // Filter available recipients
+            // Filter available recipients (not already assigned and not the participant themselves)
             const available = participants
                 .map(p => p.name)
-                .filter(name => name !== participant.name && !Array.from(assigned.values()).includes(name));
+                .filter(name => name !== participant.name && !recipientsUsed.includes(name));
 
             if (available.length === 0) {
                 document.getElementById("result").textContent = "Error: No more recipients available.";
@@ -101,9 +102,14 @@
 
             // Randomly assign a recipient
             const recipient = available[Math.floor(Math.random() * available.length)];
-            assigned.set(participant.name, recipient);
+            assigned[participant.name] = recipient;
+            recipientsUsed.push(recipient); // Mark this recipient as used
 
-            document.getElementById("result").textContent = `Hi ${participant.name}, your secret gift recipient is: ${recipient}.`;
+            // Save updated assignments to localStorage
+            localStorage.setItem("assigned", JSON.stringify(assigned));
+            localStorage.setItem("recipientsUsed", JSON.stringify(recipientsUsed));
+
+            document.getElementById("result").textContent = `Hi ${participant.name}, your secret gift recipient is assigned.`;
         });
     </script>
 </body>
