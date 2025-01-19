@@ -36,22 +36,43 @@
         button:hover {
             background-color: #45a049;
         }
-        .result {
+        .result, .data-display {
             margin-top: 20px;
             font-size: 18px;
             color: #333;
+        }
+        .data-display {
+            text-align: left;
+            margin: 0 auto;
+            width: 50%;
+            background-color: #eaf7ea;
+            padding: 10px;
+            border: 1px solid #4CAF50;
+            border-radius: 5px;
+        }
+        .data-display h2 {
+            color: #4CAF50;
+            font-size: 20px;
         }
     </style>
 </head>
 <body>
     <h1>تبادل هدايا</h1>
     <form id="giftForm">
-        <input type="text" id="nameInput" placeholder="Enter your name الي عطتك اياه المديره شوشو" required>
-        <input type="password" id="secretCodeInput" placeholder="Enter your secret code الي بعد عطتك اياه الشيخه شوشو" required>
+        <input type="text" id="nameInput" placeholder="Enter your name" required>
+        <input type="password" id="secretCodeInput" placeholder="Enter your secret code" required>
         <button type="submit">يلا شوفي مين المحظوظ الي طلع لك</button>
     </form>
 
     <div class="result" id="result"></div>
+
+    <div class="data-display" id="dataDisplay">
+        <h2>Assigned Recipients</h2>
+        <ul id="assignedList"></ul>
+        <h2>Remaining Recipients</h2>
+        <ul id="remainingList"></ul>
+    </div>
+
     <h1>ادعوا لشيخه شوشو</h1>
     <script>
         // List of participants and their secret codes
@@ -67,9 +88,33 @@
             { name: "Nourah S", code: "4455" }
         ];
 
-        // Retrieve or initialize storage for assigned givers and recipients
+        // Initialize available recipients and assignments
+        const recipients = JSON.parse(localStorage.getItem("recipients")) || participants.map(p => p.name);
         const assigned = JSON.parse(localStorage.getItem("assigned")) || {};
-        const recipientsUsed = JSON.parse(localStorage.getItem("recipientsUsed")) || [];
+
+        // Update the data display on the page
+        function updateDataDisplay() {
+            const assignedList = document.getElementById("assignedList");
+            const remainingList = document.getElementById("remainingList");
+
+            // Clear existing lists
+            assignedList.innerHTML = "";
+            remainingList.innerHTML = "";
+
+            // Display assigned data
+            for (const [giver, recipient] of Object.entries(assigned)) {
+                const li = document.createElement("li");
+                li.textContent = `${giver} ➡️ ${recipient}`;
+                assignedList.appendChild(li);
+            }
+
+            // Display remaining recipients
+            recipients.forEach(name => {
+                const li = document.createElement("li");
+                li.textContent = name;
+                remainingList.appendChild(li);
+            });
+        }
 
         document.getElementById("giftForm").addEventListener("submit", function(event) {
             event.preventDefault(); // Prevent page reload
@@ -86,14 +131,13 @@
 
             // Check if the participant already has an assigned recipient
             if (assigned[participant.name]) {
-                document.getElementById("result").textContent = `Hi ${participant.name}, your secret gift recipient is assigned.`;
+                document.getElementById("result").textContent = `Hi ${participant.name}, your secret gift recipient is: ${assigned[participant.name]}.`;
+                updateDataDisplay();
                 return;
             }
 
-            // Filter available recipients (not already assigned and not the participant themselves)
-            const available = participants
-                .map(p => p.name)
-                .filter(name => name !== participant.name && !recipientsUsed.includes(name));
+            // Filter available recipients (exclude the participant themselves)
+            const available = recipients.filter(name => name !== participant.name);
 
             if (available.length === 0) {
                 document.getElementById("result").textContent = "Error: No more recipients available.";
@@ -103,14 +147,25 @@
             // Randomly assign a recipient
             const recipient = available[Math.floor(Math.random() * available.length)];
             assigned[participant.name] = recipient;
-            recipientsUsed.push(recipient); // Mark this recipient as used
 
-            // Save updated assignments to localStorage
+            // Remove the assigned recipient from the recipients list
+            const recipientIndex = recipients.indexOf(recipient);
+            if (recipientIndex !== -1) {
+                recipients.splice(recipientIndex, 1); // Remove the recipient
+            }
+
+            // Save updates to localStorage
             localStorage.setItem("assigned", JSON.stringify(assigned));
-            localStorage.setItem("recipientsUsed", JSON.stringify(recipientsUsed));
+            localStorage.setItem("recipients", JSON.stringify(recipients));
 
-            document.getElementById("result").textContent = `Hi ${participant.name}, your secret gift recipient is assigned.`;
+            document.getElementById("result").textContent = `Hi ${participant.name}, your secret gift recipient is: ${recipient}.`;
+
+            // Update the displayed data
+            updateDataDisplay();
         });
+
+        // Initial update of the data display
+        updateDataDisplay();
     </script>
 </body>
 </html>
